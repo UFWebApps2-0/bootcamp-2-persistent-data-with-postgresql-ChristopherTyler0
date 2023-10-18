@@ -7,7 +7,9 @@ import { Sequelize, Model, DataTypes,  QueryTypes, sql } from '@sequelize/core';
   import { Listing } from './ListingModel.js';
 /* Connect to your database */
 //ADD CODE HERE to connect to you database - same code you put for JSONtoPostgreSQL.js and ListingModel.js
-
+new Sequelize(process.env.API_URL, {
+    dialect: 'postgres'
+});
 /*There are many ways to make aynchronous calls in Javascript: Promises, callbacks, Asyc/Await - https://www.geeksforgeeks.org/difference-between-promise-and-async-await-in-node-js/
   Best Practice: A current practice is to use Async Await.  
   Async / Await - https://www.theodinproject.com/lessons/node-path-javascript-async-and-await and https://javascript.info/async-await
@@ -51,8 +53,14 @@ try {
       Learn more about the finder methods available to sequelize models - https://sequelize.org/docs/v6/core-concepts/model-querying-finders/
     */
       async function retrieveAllListings() {
-          //ADD CODE HERE
+          //ADD CODE HERE;
+          //SELECT * FROM Listings;
+
           console.log('Retrieving all listings');
+          const listings = await  Listing.findAll();
+          console.log(listings.every(listing => listing instanceof Listing)); // true
+          console.log("All listings:", JSON.stringify(listings, null, 2));
+
       }
     /* 
     Find the document that contains data corresponding to Library West, then log it to the console. 
@@ -61,6 +69,12 @@ try {
     async function findLibraryWest() {
        //ADD CODE HERE
       console.log('Finding Library West');
+      const listing = await Listing.findOne({where:{code:"LBW"}});
+        if (listing == null) {
+            console.log('Not found!');
+        } else {
+            console.log(listing instanceof Listing); //
+        }
 
     }
 
@@ -74,6 +88,11 @@ try {
       async function removeCable() {
          //ADD CODE HERE
         console.log('Removing Cable BLDG');
+        await Listing.destroy({
+            where:{
+                code :"BLDG"
+            }
+        });
     }
 
     /*
@@ -83,6 +102,8 @@ try {
     async function addDSIT() {
        //ADD CODE HERE
       console.log('Adding the new DSIT BLDG that will be across from Reitz union. Bye Bye CSE, Hub, and French Fries.');
+      const newListing = Listing.build({name: 'Data Science & IT', code:'DSIT'});
+
     }
    
 
@@ -94,7 +115,11 @@ try {
     async function updatePhelpsLab() {
        //ADD CODE HERE
        console.log('UpdatingPhelpsLab.');
- 
+        await Listing.update({address: "3009 SW Williston Rd, Gainesville, FL 32608"}, {
+            where: {
+                code : "PHL"
+            }
+        });
     }
 
     
@@ -105,6 +130,7 @@ try {
    addDSIT();
    updatePhelpsLab();
    findLibraryWest();
+       
        
   
 
